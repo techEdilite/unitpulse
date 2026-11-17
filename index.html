@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Pulse | Purchase order, RDC and delivery challan management</title>
+<meta name="description" content="Unit Pulse links purchase orders, incoming items and delivery challans so quantities, values and what's left stay accurate. Request a demo.">
+<meta property="og:title" content="Unit Pulse | Purchase order, RDC and delivery challan management">
+<meta property="og:description" content="Unit Pulse links purchase orders, incoming items and delivery challans so quantities, values and what's left stay accurate.">
+<meta property="og:type" content="website">
+<!-- TODO before launch (see instructions/content.md checklist): og:image, canonical URL,
+     Privacy/Terms pages, and genuine product screenshots in place of the labelled
+     placeholders below. -->
+<meta name="theme-color" content="#101828">
+<link rel="icon" type="image/x-icon" href="https://sksunitpulse.techedilite.co/ws.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: '#101828',
+          brandblue: '#3867F5',
+          lavender: '#EEF0FF',
+          offwhite: '#F8FAFC',
+          slate: '#667085',
+          bordergrey: '#EAECF0',
+          mutednavy: '#26344C',
+        },
+        fontFamily: {
+          heading: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { content: '1280px' },
+      }
+    }
+  };
+</script>
+
+<style>
+  :root { color-scheme: light; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; background:#F8FAFC; color:#101828; }
+  h1,h2,h3,.font-heading { font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; }
+
+  /* Scroll offset so the sticky header never covers a jumped-to section */
+  section[id] { scroll-margin-top: 88px; }
+
+  /* Scroll-reveal: hidden until observed, visible by default so content
+     never disappears if JS fails or reduced motion is requested. */
+  .reveal { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in-view { opacity: 1; transform: none; }
+  }
+
+  .btn-primary {
+    background:#3867F5; color:#fff; border-radius:10px; padding:.75rem 1.5rem;
+    font-weight:600; font-size:.9375rem; display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    box-shadow: 0 1px 2px rgba(16,24,40,.06);
+  }
+  .btn-primary:hover { background:#2d52d6; }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:focus-visible { outline: 2px solid #3867F5; outline-offset: 2px; }
+
+  .btn-secondary {
+    color:#101828; border-radius:10px; padding:.75rem 1.5rem; font-weight:600; font-size:.9375rem;
+    display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    border:1px solid #EAECF0; background:#fff; transition: border-color .18s ease, background-color .18s ease;
+  }
+  .btn-secondary:hover { border-color:#3867F5; color:#3867F5; }
+  .btn-secondary:focus-visible { outline: 2px solid #3867F5; outline-offset: 2px; }
+
+  .link-cta { color:#3867F5; font-weight:600; display:inline-flex; align-items:center; gap:.375rem; }
+  .link-cta:hover { text-decoration: underline; }
+
+  /* Reusable elevated card — used for the solution section's workflow diagram. */
+  .shot-frame {
+    border-radius: 16px; background:#fff; border:1px solid #EAECF0;
+    box-shadow: 0 20px 48px -16px rgba(16,24,40,.18);
+    overflow: hidden;
+  }
+
+  .tick-row { display:flex; gap:.75rem; align-items:flex-start; }
+  .tick-row i { color:#3867F5; margin-top:.3rem; flex-shrink:0; }
+
+  .step-circle {
+    width:40px; height:40px; border-radius:999px; background:#3867F5; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Manrope', sans-serif;
+    flex-shrink:0;
+  }
+
+  /* Sticky header shrink */
+  #site-header { transition: box-shadow .2s ease, padding .2s ease; }
+  #site-header.scrolled { box-shadow: 0 1px 0 rgba(16,24,40,.06); }
+
+  /* Showcase slider */
+  #showcase .slides { display:grid; }
+  #showcase .slide { grid-area:1/1; opacity:0; visibility:hidden; transition:opacity .5s ease, visibility .5s; }
+  #showcase .slide.active { opacity:1; visibility:visible; }
+  #showcase .nav { position:absolute; top:40%; transform:translateY(-50%); width:40px; height:40px; border-radius:999px;
+    background:rgba(16,24,40,.75); color:#fff; display:flex; align-items:center; justify-content:center; }
+  #showcase .nav:hover { background:#3867F5; }
+  #showcase .prev { left:12px; } #showcase .next { right:12px; }
+  #showcase .dot { width:10px; height:10px; border-radius:999px; background:rgba(255,255,255,.25); }
+  #showcase .dot.active { background:#3867F5; width:24px; }
+  #showcase button:focus-visible { outline:2px solid #3867F5; outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce) { #showcase .slide { transition:none; } }
+</style>
+</head>
+<body class="bg-offwhite text-navy antialiased">
+
+<a href="#overview" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-white focus:px-3 focus:py-2 focus:rounded-md focus:shadow">Skip to content</a>
+
+<!-- ============ HEADER ============ -->
+<header id="site-header" class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-bordergrey">
+  <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <a href="#overview" class="flex items-center gap-2.5 shrink-0 min-w-0">
+      <img src="./ws.png" alt="Unit Pulse logo" class="h-8 w-8 rounded-md object-cover shrink-0">
+      <span class="font-heading font-bold text-navy text-base sm:text-lg truncate">Unit Pulse</span>
+    </a>
+
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <a href="/login.html" class="btn-secondary !px-3 sm:!px-4">Login</a>
+      <a href="https://calendly.com/techedilite" target="_blank" rel="noopener" class="btn-primary !px-3 sm:!px-5">
+        <span class="hidden sm:inline">Request a demo</span><span class="sm:hidden">Demo</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="overview">
+
+  <!-- ============ 02 HERO ============ -->
+  <section class="relative overflow-hidden bg-offwhite">
+    <div class="absolute inset-x-0 top-0 -z-10 h-[520px]" aria-hidden="true"
+         style="background: radial-gradient(closest-side, rgba(56,103,245,.10), transparent 70%);"></div>
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-16 sm:pt-20 sm:pb-20 lg:pt-28 lg:pb-24 text-center">
+      <div class="reveal max-w-2xl mx-auto">
+        <span class="inline-block text-xs sm:text-sm font-semibold tracking-wide uppercase text-brandblue bg-lavender rounded-full px-3 py-1.5">
+          Operations platform for contract and processing businesses
+        </span>
+        <h1 class="font-heading font-extrabold leading-[1.08] mt-5 text-navy" style="font-size: clamp(2.25rem, 4.5vw + 1rem, 3.75rem);">
+          From purchase order to delivery challan, in one connected system
+        </h1>
+        <p class="mt-5 text-base sm:text-lg text-slate max-w-xl mx-auto leading-relaxed">
+          Record orders, track incoming items and raise delivery challans without retyping.
+          Quantities and values are calculated for you, and what's left is always accurate.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center sm:items-center">
+          <a href="https://calendly.com/techedilite" target="_blank" rel="noopener" class="btn-primary">
+            Request a demo <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+          </a>
+          <a href="#how-it-works" class="link-cta justify-center">
+            See how it works <i class="fas fa-chevron-down text-xs" aria-hidden="true"></i>
+          </a>
+        </div>
+        <p class="mt-6 text-sm text-slate">For job-work, processing and contracting units.</p>
+      </div>
+      <div class="reveal mt-12 lg:mt-16 max-w-5xl mx-auto">
+        <div class="shot-frame">
+          <img src="./dashboard.png" alt="Unit Pulse dashboard showing purchase orders, RDCs, delivery challans and total DC value" class="w-full h-auto block" width="1398" height="752" fetchpriority="high">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02b TRUST: DATABASE + BLOCKCHAIN ============ -->
+  <section id="trust" class="bg-white border-t border-bordergrey">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="reveal max-w-3xl">
+        <span class="inline-block text-xs sm:text-sm font-semibold tracking-wide uppercase text-brandblue bg-lavender rounded-full px-3 py-1.5">Built for trust across organisations</span>
+        <h2 class="font-heading font-bold text-navy mt-4" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+          A central database, backed by a private Hyperledger Fabric network
+        </h2>
+        <p class="mt-4 text-slate leading-relaxed text-lg">
+          Unit Pulse runs on both a centralised database and a private Hyperledger Fabric blockchain network spanning client organisations.
+          The result is transparency within the consortium and protection against data manipulation, with each organisation keeping its own identity, access and contract rules.
+        </p>
+      </div>
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-database" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Centralised database</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Fast day-to-day operations: search, reports, printing and exports run on a central database.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-link" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Private Hyperledger Fabric network</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Key records are also written to a permissioned blockchain shared across client organisations.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-shield-halved" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Tamper-evident records</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Once committed, entries can't be silently changed, which protects against data manipulation.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-eye" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Shared transparency</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Every organisation in the consortium sees the same verified record of orders, items and challans.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-id-card" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Own trusted CA</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Each organisation has its own Certificate Authority, so identities are issued and trusted by their owners.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-diagram-project" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Channels and sub-channels</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Data is shared only with the organisations that need it, split across channels and sub-channels.</p>
+        </div>
+      </div>
+      <p class="reveal mt-8 text-navy font-medium">Contract policies, written as chaincode, set who can create, change or approve each record, and the network enforces them.</p>
+    </div>
+  </section>
+
+  <!-- ============ 07b GLOBAL TRUST ============ -->
+  <section class="bg-lavender">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-14 sm:py-16 text-center">
+      <div class="reveal max-w-2xl mx-auto">
+        <div class="h-12 w-12 rounded-xl bg-white text-brandblue flex items-center justify-center mx-auto"><i class="fas fa-earth-asia" aria-hidden="true"></i></div>
+        <h2 class="font-heading font-bold text-navy mt-5" style="font-size: clamp(1.5rem, 1.5vw + 1rem, 2.25rem); line-height:1.2;">
+          Trusted and used by industries in multiple global locations
+        </h2>
+        <p class="mt-3 text-slate leading-relaxed text-lg">
+          From job-work and processing units to contracting businesses, Unit Pulse keeps orders, incoming items and deliveries accurate across sites and regions.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 THE PROBLEM ============ -->
+  <section class="bg-white border-t border-bordergrey">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-10 lg:gap-16">
+        <div class="reveal">
+          <h2 class="font-heading font-bold text-navy" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+            Paperwork makes it hard to know where an order stands
+          </h2>
+        </div>
+        <div class="reveal divide-y divide-bordergrey">
+          <div class="py-6 first:pt-0 flex gap-4">
+            <i class="fas fa-eye-slash text-brandblue mt-1" aria-hidden="true"></i>
+            <p class="text-slate leading-relaxed"><span class="text-navy font-semibold">No clear view of PO usage.</span>
+              Challans, PDFs and spreadsheets make it hard to see how much of an order is used and what is still pending.</p>
+          </div>
+          <div class="py-6 flex gap-4">
+            <i class="fas fa-rotate text-brandblue mt-1" aria-hidden="true"></i>
+            <p class="text-slate leading-relaxed"><span class="text-navy font-semibold">Retyping causes mismatches.</span>
+              The same details are entered at every stage, so ordered, received and delivered quantities drift apart.</p>
+          </div>
+          <div class="py-6 last:pb-0 flex gap-4">
+            <i class="fas fa-triangle-exclamation text-brandblue mt-1" aria-hidden="true"></i>
+            <p class="text-slate leading-relaxed"><span class="text-navy font-semibold">Edits and cancellations break the numbers.</span>
+              Changes made later leave quantities and billing out of sync.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 THE SOLUTION ============ -->
+  <section class="bg-lavender">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div class="reveal order-2 lg:order-1">
+          <div class="shot-frame bg-white max-w-lg mx-auto lg:mx-0">
+            <div class="p-6 sm:p-8">
+              <div class="flex items-center justify-between gap-3 text-center">
+                <div class="flex-1">
+                  <div class="h-12 w-12 rounded-xl bg-lavender text-brandblue flex items-center justify-center mx-auto"><i class="fas fa-file-contract" aria-hidden="true"></i></div>
+                  <p class="mt-2 text-xs font-semibold text-navy">Purchase Order</p>
+                </div>
+                <i class="fas fa-arrow-right text-bordergrey" aria-hidden="true"></i>
+                <div class="flex-1">
+                  <div class="h-12 w-12 rounded-xl bg-lavender text-brandblue flex items-center justify-center mx-auto"><i class="fas fa-dolly" aria-hidden="true"></i></div>
+                  <p class="mt-2 text-xs font-semibold text-navy">RDC</p>
+                </div>
+                <i class="fas fa-arrow-right text-bordergrey" aria-hidden="true"></i>
+                <div class="flex-1">
+                  <div class="h-12 w-12 rounded-xl bg-lavender text-brandblue flex items-center justify-center mx-auto"><i class="fas fa-truck" aria-hidden="true"></i></div>
+                  <p class="mt-2 text-xs font-semibold text-navy">Delivery Challan</p>
+                </div>
+              </div>
+              <p class="mt-6 text-xs text-slate text-center">One linked flow — each stage knows the one before it.</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal order-1 lg:order-2">
+          <h2 class="font-heading font-bold text-navy" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+            One linked flow, so the numbers stay right
+          </h2>
+          <p class="mt-4 text-slate leading-relaxed text-lg">
+            Every Delivery Challan links back to its RDC and Purchase Order, so the system always knows what is left.
+          </p>
+          <div class="mt-7 space-y-4">
+            <div class="tick-row"><i class="fas fa-circle-check" aria-hidden="true"></i><p class="text-navy">Enter data once and it flows through to challans and reports</p></div>
+            <div class="tick-row"><i class="fas fa-circle-check" aria-hidden="true"></i><p class="text-navy">Quantities and values are calculated, not worked out by hand</p></div>
+            <div class="tick-row"><i class="fas fa-circle-check" aria-hidden="true"></i><p class="text-navy">"Quantity remaining" stays correct after edits and cancellations</p></div>
+            <div class="tick-row"><i class="fas fa-circle-check" aria-hidden="true"></i><p class="text-navy">Delivery challans generated and printed in minutes</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 KEY FEATURES ============ -->
+  <section id="features" class="bg-offwhite">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="max-w-2xl reveal">
+        <h2 class="font-heading font-bold text-navy" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+          Everything each stage needs, built in
+        </h2>
+      </div>
+
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-file-import" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">PO capture</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Enter a purchase order manually or upload a PO PDF and let the system read the details.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-dolly" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">RDC tracking</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Record incoming items with quantities, units and services. Load them in bulk from a PDF. See pending and delivered items by department. Add one-off items through Manual RDC Item Entry.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-truck-ramp-box" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Delivery Challan builder</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Pick RDC items and services; quantities, unit conversions and value are worked out automatically. Chargeable and non-chargeable items can share one challan.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-rotate-left" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Safe edits and cancellations</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Edit a challan and reserved quantities adjust automatically. Cancel one and quantities return to the RDC and PO. A cancelled challan can't be edited or reprinted.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-print" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Print and export</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">Print-ready, multi-copy challans in standard paper sizes. Export Delivery Challan and RDC data to Excel.</p>
+        </div>
+        <div class="reveal bg-white border border-bordergrey rounded-2xl p-6 transition-colors hover:border-brandblue">
+          <div class="h-10 w-10 rounded-lg bg-lavender text-brandblue flex items-center justify-center"><i class="fas fa-user-shield" aria-hidden="true"></i></div>
+          <h3 class="font-heading font-bold text-navy mt-4">Audit and access control</h3>
+          <p class="mt-2 text-slate text-sm leading-relaxed">An audit log of key actions, secure login and protected sessions. Admins manage credentials and access.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 HOW IT WORKS ============ -->
+  <section id="how-it-works" class="bg-white border-t border-bordergrey">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <h2 class="reveal font-heading font-bold text-navy text-center" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+        How Unit Pulse works
+      </h2>
+
+      <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6 relative">
+        <div class="hidden lg:block absolute top-5 left-[12%] right-[12%] h-px bg-bordergrey" aria-hidden="true"></div>
+
+        <div class="reveal relative text-center lg:text-left">
+          <div class="step-circle mx-auto lg:mx-0">1</div>
+          <h3 class="font-heading font-bold text-navy mt-4">Record the purchase order</h3>
+          <p class="mt-2 text-sm text-slate leading-relaxed">Add it manually or from a PDF, with services, rates and quantities.</p>
+        </div>
+        <div class="reveal relative text-center lg:text-left">
+          <div class="step-circle mx-auto lg:mx-0">2</div>
+          <h3 class="font-heading font-bold text-navy mt-4">Log incoming items</h3>
+          <p class="mt-2 text-sm text-slate leading-relaxed">Add RDC items received from the client against that PO.</p>
+        </div>
+        <div class="reveal relative text-center lg:text-left">
+          <div class="step-circle mx-auto lg:mx-0">3</div>
+          <h3 class="font-heading font-bold text-navy mt-4">Raise the delivery challan</h3>
+          <p class="mt-2 text-sm text-slate leading-relaxed">Pick items and services; the system calculates quantities and value.</p>
+        </div>
+        <div class="reveal relative text-center lg:text-left">
+          <div class="step-circle mx-auto lg:mx-0">4</div>
+          <h3 class="font-heading font-bold text-navy mt-4">Track what's left</h3>
+          <p class="mt-2 text-sm text-slate leading-relaxed">Remaining quantity and pending deliveries stay current. Print or export when needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 PRODUCT SHOWCASE ============ -->
+  <section class="bg-navy">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <h2 class="reveal font-heading font-bold text-white" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+        Inside the application
+      </h2>
+
+      <div id="showcase" class="reveal mt-10 max-w-5xl mx-auto" role="region" aria-roledescription="carousel" aria-label="Application screenshots">
+        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);">
+          <div class="relative">
+            <div class="slides" aria-live="off">
+          <figure class="slide" aria-roledescription="slide" aria-label="1 of 6">
+            <div class="bg-white"><img src="./po-upload.png" alt="Create Purchase Order screen with PDF upload" class="w-full h-auto block" width="1511" height="808" ></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-file-import" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">Auto upload PO</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Upload a PO PDF and let the system read the details.</p></div>
+            </figcaption>
+          </figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="2 of 6">
+            <div class="bg-white"><img src="./po-detail.png" alt="Purchase order detail with services, rates and quantities" class="w-full h-auto block" width="1403" height="752" loading="lazy"></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-file-contract" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">Purchase Orders</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Services, rates and quantity used vs remaining.</p></div>
+            </figcaption>
+          </figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="3 of 6">
+            <div class="bg-white"><img src="./rdc-manage.png" alt="Manage RDC items with bulk PDF upload and pending quantities" class="w-full h-auto block" width="1455" height="736" loading="lazy"></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-dolly" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">Manage RDC items</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Bulk upload from PDF; issued, returned and pending at a glance.</p></div>
+            </figcaption>
+          </figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="4 of 6">
+            <div class="bg-white"><img src="./rdc-details.png" alt="RDC details with client information and item list" class="w-full h-auto block" width="1456" height="734" loading="lazy"></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-warehouse" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">RDC details</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Client, status, department and every item in one view.</p></div>
+            </figcaption>
+          </figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="5 of 6">
+            <div class="bg-white"><img src="./delivery-challan.png" alt="Delivery challan details with chargeable and non-chargeable items" class="w-full h-auto block" width="1139" height="669" loading="lazy"></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-truck-ramp-box" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">Delivery Challan</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Items, services, quantities and value in one screen.</p></div>
+            </figcaption>
+          </figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="6 of 6">
+            <div class="bg-white"><img src="./audit-logs.png" alt="Audit log of quantity and price changes" class="w-full h-auto block" width="1410" height="752" loading="lazy"></div>
+            <figcaption class="px-5 py-4 sm:px-7 sm:py-5 flex items-center gap-4">
+              <div class="h-10 w-10 rounded-lg flex items-center justify-center text-brandblue shrink-0" style="background:rgba(56,103,245,.16);"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i></div>
+              <div><h3 class="font-heading font-bold text-white">Audit logs</h3><p class="text-sm mt-0.5" style="color:#9AA4BD;">Who changed what, and when.</p></div>
+            </figcaption>
+          </figure>
+            </div>
+            <button type="button" class="nav prev" aria-label="Previous slide"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" class="nav next" aria-label="Next slide"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="mt-5 flex items-center justify-center gap-4">
+          <button type="button" id="sc-toggle" class="inline-flex items-center gap-2 text-sm font-semibold text-white rounded-lg px-3 py-1.5" style="border:1px solid rgba(255,255,255,.2);" aria-label="Pause slideshow"><i class="fas fa-pause" aria-hidden="true"></i><span>Pause</span></button>
+          <div class="flex gap-2"><button type="button" class="dot" data-i="0" aria-label="Go to slide 1"></button><button type="button" class="dot" data-i="1" aria-label="Go to slide 2"></button><button type="button" class="dot" data-i="2" aria-label="Go to slide 3"></button><button type="button" class="dot" data-i="3" aria-label="Go to slide 4"></button><button type="button" class="dot" data-i="4" aria-label="Go to slide 5"></button><button type="button" class="dot" data-i="5" aria-label="Go to slide 6"></button></div>
+        </div>
+        <p class="mt-6 text-center text-sm max-w-2xl mx-auto leading-relaxed" style="color:#9AA4BD;">
+          <i class="fas fa-circle-info mr-1" aria-hidden="true"></i>
+          Note: these screenshots use sample data and have been modified for illustration.
+          <a href="https://calendly.com/techedilite" target="_blank" rel="noopener" class="text-white font-semibold underline underline-offset-2">Contact us</a> to see the actual application.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 08 BENEFITS AND OUTCOMES ============ -->
+  <section class="bg-offwhite">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+        <h2 class="reveal font-heading font-bold text-navy" style="font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem); line-height:1.15;">
+          Less chasing, fewer errors
+        </h2>
+        <div class="reveal space-y-7">
+          <div>
+            <p class="font-heading font-bold text-navy text-lg">Less manual work</p>
+            <p class="mt-1.5 text-slate leading-relaxed">Enter data once; it flows through to challans and reports.</p>
+          </div>
+          <div>
+            <p class="font-heading font-bold text-navy text-lg">Fewer errors</p>
+            <p class="mt-1.5 text-slate leading-relaxed">The system calculates quantities and values.</p>
+          </div>
+          <div>
+            <p class="font-heading font-bold text-navy text-lg">Faster paperwork</p>
+            <p class="mt-1.5 text-slate leading-relaxed">Challans are generated and printed quickly.</p>
+          </div>
+          <div>
+            <p class="font-heading font-bold text-navy text-lg">Clear accountability</p>
+            <p class="mt-1.5 text-slate leading-relaxed">Audit trail and status tracking show what happened and when.</p>
+          </div>
+          <p class="pt-2 text-navy font-medium border-t border-bordergrey">White-label by design: one platform already runs more than one business, each under its own branding.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 09 IN DAILY USE ============ -->
+  <section class="bg-white border-y border-bordergrey">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <p class="reveal text-center text-xs font-semibold uppercase tracking-wide text-brandblue">Our partners</p>
+      <div class="reveal mt-3 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center">
+        <div class="flex items-center gap-6 sm:gap-10 flex-wrap justify-center">
+          <span class="font-heading font-bold text-navy text-base sm:text-lg">S.K. Subram Contract</span>
+          <span class="h-1.5 w-1.5 rounded-full bg-bordergrey hidden sm:inline-block" aria-hidden="true"></span>
+          <span class="font-heading font-bold text-navy text-base sm:text-lg">S.K. Subram Enterprises</span>
+        </div>
+      </div>
+      <p class="reveal mt-3 text-center text-sm text-slate">
+        A white-label platform: partners run Unit Pulse every day in Hosur Industrial Area, Tamil Nadu, each under its own branding, data and users, from the same system.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 10 FINAL CTA ============ -->
+  <section class="bg-navy">
+    <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28 text-center">
+      <h2 class="reveal font-heading font-bold text-white max-w-2xl mx-auto" style="font-size: clamp(1.75rem, 2.5vw + 1rem, 2.75rem); line-height:1.15;">
+        See Unit Pulse on your own paperwork
+      </h2>
+      <p class="reveal mt-4 text-slate-200/80 max-w-xl mx-auto text-base sm:text-lg" style="color:#C3CAD9;">
+        Book a short demo and we'll walk through your purchase order to delivery flow.
+      </p>
+      <div class="reveal mt-8 flex justify-center">
+        <a href="https://calendly.com/techedilite" target="_blank" rel="noopener" class="btn-primary w-full sm:w-auto">
+          Request a demo <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-mutednavy">
+  <div class="max-w-content mx-auto px-5 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <div class="flex items-center gap-2.5">
+        <img src="./ws.png" alt="Unit Pulse logo" class="h-7 w-7 rounded-md object-cover">
+        <span class="font-heading font-bold text-white text-base">Unit Pulse</span>
+      </div>
+
+    </div>
+
+    <div class="mt-8 pt-6 border-t flex flex-col sm:flex-row items-center sm:justify-between gap-4" style="border-color:#374158;">
+      <div class="flex items-center gap-2 text-xs" style="color:#7C859B;">
+        <span>Built by</span>
+        <img src="./Companylogo.png" alt="Techedilite logo" class="h-5 w-5 rounded object-cover">
+        <span class="text-white font-medium">Techedilite</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // ── Sticky header shadow on scroll ────────────────────────────────────
+  var header = document.getElementById('site-header');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 8); }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── Scroll reveal (skipped entirely if the browser prefers less motion) ─
+  if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  }
+})();
+
+  (function () {
+    var root = document.getElementById('showcase'); if (!root) return;
+    var slides = root.querySelectorAll('.slide'), dots = root.querySelectorAll('.dot');
+    var btn = document.getElementById('sc-toggle'), cur = 0, timer = null;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function show(i) {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+      dots.forEach(function (d, k) { d.classList.toggle('active', k === cur); });
+    }
+    function play() { stop(); timer = setInterval(function () { show(cur + 1); }, 2000); setBtn(true); }
+    function stop() { if (timer) clearInterval(timer); timer = null; setBtn(false); }
+    function setBtn(on) {
+      btn.querySelector('i').className = 'fas ' + (on ? 'fa-pause' : 'fa-play');
+      btn.querySelector('span').textContent = on ? 'Pause' : 'Play';
+      btn.setAttribute('aria-label', on ? 'Pause slideshow' : 'Play slideshow');
+    }
+    btn.addEventListener('click', function () { timer ? stop() : play(); });
+    root.querySelector('.prev').addEventListener('click', function () { show(cur - 1); if (timer) play(); });
+    root.querySelector('.next').addEventListener('click', function () { show(cur + 1); if (timer) play(); });
+    dots.forEach(function (d) { d.addEventListener('click', function () { show(+d.dataset.i); if (timer) play(); }); });
+    show(0);
+    if (reduce) setBtn(false); else play();
+  })();
+</script>
+</body>
+</html>

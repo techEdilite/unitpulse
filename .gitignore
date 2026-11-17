@@ -1,0 +1,22 @@
+# Go related files
+main.go
+go.mod
+go.sum
+go.work
+go.work.sum
+vendor/
+
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+unitpulse
+bin/
+
+# Go build/coverage artifacts
+*.prof
+coverage.*
